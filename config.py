@@ -1,3 +1,4 @@
+import logging
 import redis
 
 
@@ -21,6 +22,9 @@ class Config(object):
     SESSION_PERMANENT = False  # 设置需要过期时间,而不是永久
     PERMANENT_SESSION_LIFETIME = 86400 * 2  # 设置过期时间为2天
 
+    # 设置日志等级
+    LOG_LEVEl = logging.ERROR
+
 
 class DevelopementConfig(Config):
     """开发模式下的配置"""
@@ -29,7 +33,8 @@ class DevelopementConfig(Config):
 
 class ProductionConfig(Config):
     """生产模式下的配置"""
-    DEBUG = True
+    DEBUG = False
+    LOG_LEVEl = logging.WARNING
 
 
 class TestingConfig(Config):
@@ -41,5 +46,5 @@ class TestingConfig(Config):
 config = {
     "development": DevelopementConfig,
     "production": ProductionConfig,
-    'testing': TestingConfig
+    "testing": TestingConfig,
 }
