@@ -5,6 +5,7 @@ import pymysql
 import redis
 from flask_wtf import CSRFProtect
 from flask_session import Session
+from flask_migrate import Migrate, MigrateCommand
 
 
 class Config(object):
@@ -42,6 +43,10 @@ CSRFProtect(app)
 Session(app)
 
 manager = Manager(app)
+# 将app与db关联
+Migrate(app, db)
+# 将数据库迁移命令添加到manager中
+manager.add_command('db', MigrateCommand)
 
 
 @app.route('/')
