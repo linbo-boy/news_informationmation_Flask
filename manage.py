@@ -5,7 +5,7 @@ import pymysql
 
 class Config(object):
     """工程配置信息"""
-    Debug = True
+    DEBUG = True
     """为数据库添加配置"""
     SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@127.0.0.1:3306/news_information'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
