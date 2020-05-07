@@ -6,10 +6,14 @@ from flask import Flask
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
+from redis import StrictRedis
+
 from config import config
 
 # 初始化数据库，在Flask很多扩展里都可以先初始化扩展对象，然后调用init_app方法初始化
 db = SQLAlchemy()
+redis_store = None  # type: StrictRedis
+# redis_store: StrictRedis = None
 
 
 def setup_log(config_name):
@@ -36,9 +40,14 @@ def create_app(config_name):
     db.init_app(app)
     pymysql.install_as_MySQLdb()
     # 初始化redis存储对象
+    global redis_store
     redis_store = redis.StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
     # 开启当前项目CSRF保护,只做服务器验证功能
     CSRFProtect(app)
     # 设置Session保存指定位置
     Session(app)
+
+    # 注册蓝图
+    from info.modules.index import index_blu
+    app.register_blueprint(index_blu)
     return app
