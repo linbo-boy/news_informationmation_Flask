@@ -1,4 +1,5 @@
 from flask import Flask, session
+from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 import pymysql
 import redis
@@ -40,6 +41,8 @@ CSRFProtect(app)
 # 设置Session保存指定位置
 Session(app)
 
+manager = Manager(app)
+
 
 @app.route('/')
 def index():
@@ -48,4 +51,4 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run()
+    manager.run()
