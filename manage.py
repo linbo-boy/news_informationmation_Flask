@@ -1,9 +1,6 @@
-import logging
-
-from flask import session, current_app
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
-from info import create_app, db
+from info import create_app, db, models
 
 # 通过指定的配置文件创建对应配置的app
 # create_app 就类似于工厂方法
