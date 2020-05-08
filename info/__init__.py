@@ -12,7 +12,7 @@ from config import config
 
 # 初始化数据库，在Flask很多扩展里都可以先初始化扩展对象，然后调用init_app方法初始化
 db = SQLAlchemy()
-redis_store = None  # type: StrictRedis
+redis_store = None
 # redis_store: StrictRedis = None
 
 
@@ -50,4 +50,9 @@ def create_app(config_name):
     # 注册蓝图
     from info.modules.index import index_blu
     app.register_blueprint(index_blu)
+
+    # 注册蓝图
+    from info.modules.passport import passport_blu
+    app.register_blueprint(passport_blu)
+
     return app

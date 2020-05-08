@@ -4,7 +4,7 @@ import redis
 
 class Config(object):
     """工程配置信息"""
-    DEBUG = True
+    # DEBUG = True
     SECRET_KEY = 'j7g+RfhBHm5vlJKhWNOsqm9Jha0y536EQNE6Fw5TNQHyuylYkOVraAwxzMyrxYeX'
 
     """为数据库添加配置"""
