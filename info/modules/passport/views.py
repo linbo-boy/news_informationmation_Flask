@@ -1,5 +1,5 @@
 import re
-from random import random
+import random
 
 from flask import request, abort, current_app, make_response, jsonify
 
@@ -41,9 +41,6 @@ def send_msg_code():
     # 3.从redis中取出真实的验证码内容
     try:
         real_image_code = redis_store.get("ImageCodeId_" + image_code_id)
-        # 如果能够取出来值，删除redis中缓存的内容
-        real_image_code = real_image_code.decode()
-        redis_store.delete("ImageCodeId_" + image_code_id)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(RET.DBERR, errmsg="数据查询失败")
