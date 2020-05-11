@@ -12,6 +12,57 @@ from ...models import User
 from ...utils.response_code import RET
 
 
+@passport_blu.route('/login', methods=["POST"])
+def login():
+    """
+    登录逻辑
+    1.获取参数
+    2.校验参数
+    3.校验密码是否正确
+    4.如果正确，保存用户登录状态
+    5.返回响应
+    :return:
+    """
+    # 1.获取参数
+    params_dict = request.json
+    mobile = params_dict.get("mobile")
+    password = params_dict.get("password")
+    # 2.校验参数
+    if not all([mobile, mobile]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+    # 校验手机参数(参数是否符合规则，判断是否有值)
+    if not re.match("^1[3578][0-9]{9}$", mobile):
+        # 提示手机号不正确
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号不正确")
+
+    # 3.校验密码是否正确
+    # 从数据库查询当前是否有指定手机号的用户
+    try:
+        user = User.query.filter(User.mobile == mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询数据错误")
+    if not user:
+        return jsonify(errno=RET.USERERR, errmsg="用户不存在")
+    # 校验密码
+    if not user.check_passowrd(password):
+        return jsonify(errno=RET.PWDERR, errmsg="密码错误")
+
+    # 4.如果正确，保存用户登录状态
+    session["user_id"] = user.id
+    session["nick_name"] = user.nick_name
+    session["mobile"] = user.mobile
+    # 记录用户最后一次登录时间
+    user.last_login = datetime.now()
+    try:
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+
+    # 5.返回响应
+    return jsonify(errno=RET.OK, errmsg="登录成功")
+
+
 @passport_blu.route('/register', methods=["POST"])
 def register():
     """
@@ -39,7 +90,7 @@ def register():
     # 校验手机参数(参数是否符合规则，判断是否有值)
     if not re.match("^1[3578][0-9]{9}$", mobile):
         # 提示手机号不正确
-        return jsonify(errno=RET.DATAERR, errmsg="手机号不正确")
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号不正确")
 
     # 3.取到服务器保存的真实短信验证码内容
     try:
