@@ -166,6 +166,8 @@ $(function(){
             success: function (resp) {
                 if (resp.errno == "0") {
                     // 代表注册成功
+                    // 刷新当前界面
+                    location.reload()
                 }else {
                     // 代表注册失败
                     $("#register-password-err").html(resp.errmsg)
@@ -225,8 +227,8 @@ function sendSMSCode() {
         contentType: "application/json",
         // 响应数据的格式
         dataType: "json",
-        success: function (response) {
-            if (response.errno == "0"){
+        success: function (resp) {
+            if (resp.errno == "0"){
                 // 代表发送成功
                 var num = 60;
                 var t = setInterval(function () {

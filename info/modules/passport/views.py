@@ -12,7 +12,7 @@ from ...models import User
 from ...utils.response_code import RET
 
 
-@passport_blu.route('/register', methords=["POST"])
+@passport_blu.route('/register', methods=["POST"])
 def register():
     """
     注册逻辑
@@ -129,12 +129,13 @@ def send_msg_code():
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="数据库查询错误")
-    if user:
-        # 该手机已被注册
-        return jsonify(errno=RET.DATAEXIST, errmsg="该手机已被注册")
+    # if user:
+    #     # 该手机已被注册
+    #     return jsonify(errno=RET.DATAEXIST, errmsg="该手机已被注册")
     # 5.如果一致，生成验证码内容(随机数据)
     result = random.randint(0, 999999)
     sms_code = "%06d" % result
+    print("短信验证码的内容：%s" % sms_code)
     current_app.logger.debug("短信验证码的内容：%s" % sms_code)
     result = CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES / 60], "1")
     # 6.发送短信验证码
@@ -170,6 +171,7 @@ def get_image_code():
         return abort(403)
     # 3.生成图片验证码
     name, text, image = captcha.generate_captcha()
+    print("图片验证码是%s" % text)
     # 4.保存图片验证码文字内容到redis
     try:
         # 保存当前生成的图片验证码内容
