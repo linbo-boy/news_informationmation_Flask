@@ -61,8 +61,8 @@ def register():
     user.mobile = mobile
     user.nick_name = mobile
     # 记录用户最后一次登录时间
-    user.last_login = datetime.now
-    # TODO 对密码进行处理
+    user.last_login = datetime.now()
+    # 对密码进行处理
     user.password = password
 
     # 6.将user模型添加到数据库
@@ -81,7 +81,7 @@ def register():
     session["mobile"] = user.mobile
 
     # 7. 返回注册结果
-    return jsonify(errno=RET.OK, errmsg="OK")
+    return jsonify(errno=RET.OK, errmsg="注册成功")
 
 
 @passport_blu.route('/sms_code', methods=["POST"])
