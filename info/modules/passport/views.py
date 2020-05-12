@@ -12,6 +12,19 @@ from ...models import User
 from ...utils.response_code import RET
 
 
+@passport_blu.route('/logout')
+def logout():
+    """
+    退出登录
+    :return:
+    """
+    # pop是移除session中的数据(dict),pop会有一个返回值，如果移除的key不存在返回None
+    session.pop('user_id', None)
+    session.pop('mobile', None)
+    session.pop('nick_name', None)
+    return jsonify(errno=RET.OK, errmsg="退出成功")
+
+
 @passport_blu.route('/login', methods=["POST"])
 def login():
     """
