@@ -24,7 +24,7 @@ def index():
     # 右侧新闻排行的逻辑
     news_list = []
     try:
-        news_list = News.query.order_by(News.clicks.desc().limit(6))
+        news_list = News.query.order_by(News.clicks.desc()).limit(6)
     except Exception as e:
         current_app.logger.error(e)
     news_dict_li = []
