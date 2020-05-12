@@ -6,6 +6,7 @@ from flask import Flask
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
+from flask_wtf.csrf import generate_csrf
 from redis import StrictRedis
 
 from config import config
@@ -43,9 +44,19 @@ def create_app(config_name):
     global redis_store
     redis_store = redis.StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT, decode_responses=True)
     # 开启当前项目CSRF保护,只做服务器验证功能
-    # CSRFProtect(app)
+    # 已经帮我们做了:从cookie中取出随机值，从表单中取出随机值，然后进行校验，并且响应校验结果
+    # 我们需要做:1.在返回响应的时候，往cookie中添加一个csrf_token，2.并且在表单中添加一个隐藏的csrf_token
+    CSRFProtect(app)
     # 设置Session保存指定位置
     Session(app)
+
+    @app.after_request
+    def after_request(response):
+        # 调用函数生成 csrf_token
+        csrf_token = generate_csrf()
+        # 通过 cookie 将值传给前端
+        response.set_cookie("csrf_token", csrf_token)
+        return response
 
     # 注册蓝图
     from info.modules.index import index_blu

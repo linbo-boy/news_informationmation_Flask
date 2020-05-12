@@ -126,6 +126,10 @@ $(function(){
             url:"/passport/login",
             type: "post",
             contentType: "application/json",
+            // 在header中添加csrf_token 的随机值
+            headers:{
+                "X-CSRFToken": getCookie('csrf_token')
+            },
             data: JSON.stringify(params),
             success: function (resp) {
                 if (resp.errno == "0") {
@@ -181,6 +185,10 @@ $(function(){
             url:"/passport/register",
             type: "post",
             contentType: "application/json",
+            // 在header中添加csrf_token 的随机值
+            headers:{
+                "X-CSRFToken": getCookie('csrf_token')
+            },
             data: JSON.stringify(params),
             success: function (resp) {
                 if (resp.errno == "0") {
@@ -242,6 +250,10 @@ function sendSMSCode() {
         method: "POST",
         // 请求内容
         data: JSON.stringify(params),
+        // 在header中添加csrf_token 的随机值
+        headers:{
+            "X-CSRFToken": getCookie('csrf_token')
+        },
         // 请求内容的数据类型
         contentType: "application/json",
         // 响应数据的格式
