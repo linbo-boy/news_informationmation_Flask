@@ -10,6 +10,8 @@ class Config(object):
     """为数据库添加配置"""
     SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@127.0.0.1:3306/news_information'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # 在请求结束时，如果指定配置为True，那么SQLALCHEMY会自动执行db.session.commit()操作
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
     """redis配置"""
     REDIS_HOST = '127.0.0.1'
