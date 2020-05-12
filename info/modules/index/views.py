@@ -1,8 +1,55 @@
-from flask import render_template, current_app, session
+from flask import render_template, current_app, session, request, jsonify
 
 from . import index_blu
-from ... import redis_store
+from ... import redis_store, constants
 from ...models import User, News
+from ...utils.response_code import RET
+
+
+@index_blu.route('/news_list')
+def news_list():
+    """
+    获取首页新闻数据
+    :return:
+    """
+    # 1.获取参数
+    # 新闻的分类id
+    cid = request.args.get('cid', '1')
+    page = request.args.get('page', '1')
+    per_page = request.args.get('per_page', '10')
+
+    # 2.校验参数
+    try:
+        cid = int(cid)
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    filters = []
+    if cid != 1:  # 查询的不是最新的数据
+        filters.append(News.category_id == cid)
+    # 3.查询数据
+    try:
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page, per_page, False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DATAERR, errmsg="数据库查询错误")
+    # 取到当前页的数据
+    news_model_list = paginate.items
+    total_page = paginate.pages
+    current_page = paginate.page
+
+    news_dict_li = []
+    for news in news_model_list:
+        news_dict_li.append(news.to_basic_dict())
+    data = {
+        "total_page": total_page,
+        "current_page": current_page,
+        "news_dict_li": news_dict_li
+    }
+    return jsonify(errno=RET.OK, errmsg="OK", data=data)
 
 
 @index_blu.route('/')
@@ -19,12 +66,12 @@ def index():
         try:
             user = User.query.get(user_id)
         except Exception as e:
-            current_app.logger.errno(e)
+            current_app.logger.error(e)
 
     # 右侧新闻排行的逻辑
     news_list = []
     try:
-        news_list = News.query.order_by(News.clicks.desc()).limit(6)
+        news_list = News.query.order_by(News.clicks.desc()).limit(constants.CLICK_RANK_MAX_NEWS)
     except Exception as e:
         current_app.logger.error(e)
     news_dict_li = []
