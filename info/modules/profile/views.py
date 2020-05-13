@@ -1,6 +1,7 @@
 from flask import render_template, redirect, g, request, jsonify, current_app
 
 from info import constants
+from info.models import Category
 from info.modules.profile import profile_blu
 from info.utils.common import user_login_data
 from info.utils.image_storage import storage
@@ -143,3 +144,29 @@ def user_collection():
 
     data = {"total_page": total_page, "current_page": current_page, "collections": collection_dict_li}
     return render_template('news/user_collection.html', data=data)
+
+
+@profile_blu.route('/news_release')
+@user_login_data
+def news_release():
+
+    categories = []
+    try:
+        # 获取所有的分类数据
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+
+    # 定义列表保存分类数据
+    categories_dicts = []
+
+    for category in categories:
+        # 获取字典
+        cate_dict = category.to_dict()
+        # 拼接内容
+        categories_dicts.append(cate_dict)
+
+    # 移除`最新`分类
+    categories_dicts.pop(0)
+    # 返回内容
+    return render_template('news/user_news_release.html', data={"categories": categories_dicts})
