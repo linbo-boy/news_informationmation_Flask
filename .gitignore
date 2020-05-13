@@ -131,3 +131,4 @@ dmypy.json
 .idea/
 logs/log*
 migrations
+.qiniu_pythonsdk_hostscache.json

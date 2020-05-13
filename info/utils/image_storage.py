@@ -19,7 +19,7 @@ def storage(data):
     except Exception as e:
         raise e
 
-    if info.statu_code != 200:
+    if info.status_code != 200:
         raise Exception("上传图片失败")
     return ret["key"]
 
