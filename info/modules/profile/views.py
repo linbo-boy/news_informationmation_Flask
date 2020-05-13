@@ -1,6 +1,9 @@
-from flask import render_template, redirect, g, request, jsonify
+from flask import render_template, redirect, g, request, jsonify, current_app
+
+from info import constants
 from info.modules.profile import profile_blu
 from info.utils.common import user_login_data
+from info.utils.image_storage import storage
 from info.utils.response_code import RET
 
 
@@ -38,7 +41,7 @@ def base_info():
     # 1. 获取当前登录用户的信息
     user = g.user
     if request.method == "GET":
-        return render_template('news/user_base_info.html', data={"user": g.user.to_dict()})
+        return render_template('news/user_base_info.html', data={"user": user.to_dict()})
     # 如果是POST，代表是修改用户数据
     # 2. 获取到传入参数
     data_dict = request.json
@@ -57,3 +60,30 @@ def base_info():
 
     # 4. 返回响应
     return jsonify(errno=RET.OK, errmsg="更新成功")
+
+
+@profile_blu.route('/pic_info', methods=["GET", "POST"])
+@user_login_data
+def pic_info():
+    user = g.user
+    if request.method == "GET":
+        return render_template('news/user_pic_info.html', data={"user": user.to_dict()})
+    # 1. 获取到上传的文件
+    try:
+        avatar_file = request.files.get("avatar").read()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="读取文件出错")
+
+    # 2. 再将文件上传到七牛云
+    try:
+        key = storage(avatar_file)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.THIRDERR, errmsg="上传图片错误")
+
+    # 3. 将头像信息更新到当前用户的模型中
+
+    # 设置用户模型相关数据
+    user.avatar_url = key
+    return jsonify(errno=RET.OK, errmsg="OK", avatar_url=constants.QINIU_DOMIN_PREFIX)
