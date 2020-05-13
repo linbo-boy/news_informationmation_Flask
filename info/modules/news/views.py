@@ -53,7 +53,7 @@ def news_detail(news_id):
     return render_template("news/detail.html", data=data)
 
 
-@news_blu.route("/news_collect", methord=["POST"])
+@news_blu.route("/news_collect", methods=["POST"])
 @user_login_data
 def collect_news():
     """
@@ -103,4 +103,4 @@ def collect_news():
             # 添加到用户的新闻收藏列表
             user.collection_news.append(news)
 
-        return jsonify(errno=RET.OK, errmsg="操作成功")
+    return jsonify(errno=RET.OK, errmsg="操作成功")
