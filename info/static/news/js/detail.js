@@ -182,6 +182,9 @@ $(function(){
                 success: function (resp) {
                     if (resp.errno == "0") {
                         var like_count = $this.attr('data-likecount')
+                        if (like_count == undefined) {
+                            like_count = 0
+                        }
                         // 更新点赞按钮图标
                         if (action == "add") {
                             like_count = parseInt(like_count) + 1
