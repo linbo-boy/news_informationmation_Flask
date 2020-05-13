@@ -233,7 +233,7 @@ def set_comment_like():
     try:
         db.session.commit()
     except Exception as e:
-        current_app.logger.error(e)
         db.session.rollback()
-        return jsonify(errno=RET.DBERR, errmsg="操作失败")
-    return jsonify(errno=RET.OK, errmsg="操作成功")
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="点赞失败")
+    return jsonify(errno=RET.OK, errmsg="点赞成功")
