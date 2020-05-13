@@ -1,7 +1,7 @@
 from flask import render_template, current_app, session, g, abort, request, jsonify
 
-from info import constants
-from info.models import News, User
+from info import constants, db
+from info.models import News, User, Comment
 from info.modules.news import news_blu
 from info.utils.common import user_login_data
 from info.utils.response_code import RET
@@ -104,3 +104,59 @@ def collect_news():
             user.collection_news.append(news)
 
     return jsonify(errno=RET.OK, errmsg="操作成功")
+
+
+@news_blu.route('/news_comment', methods=["POST"])
+@user_login_data
+def add_news_comment():
+    """
+    评论新闻
+    :return:
+    """
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg="用户未登录")
+    # 1.获取参数
+    data_dict = request.json
+    news_id = data_dict.get("news_id")
+    comment_str = data_dict.get("comment")
+    parent_id = data_dict.get("parent_id")
+
+    # 2.判断参数
+    if not all([news_id, comment_str]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不足")
+    try:
+        news_id = int(news_id)
+        if parent_id:
+            parent_id = int(parent_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不足")
+
+    # 查询新闻并判断新闻是否存在
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="查询数据失败")
+    if not news:
+        return jsonify(errno=RET.NODATA, errmsg="该新闻不存在")
+
+    # 3.初始化一个评论模型，并且赋值
+    comment = Comment()
+    comment.user_id = user.id
+    comment.news_id = news_id
+    comment.content = comment_str
+    if parent_id:
+        comment.parent_id = parent_id
+
+    # 4.保存到数据库
+    try:
+        db.session.add(comment)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="保存评论数据失败")
+
+    # 5.返回响应
+    return jsonify(errno=RET.OK, errmsg="评论成功", data=comment.to_dict())
