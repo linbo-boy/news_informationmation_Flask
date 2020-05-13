@@ -51,9 +51,29 @@ def news_detail(news_id):
     except Exception as e:
         current_app.logger.error(e)
 
+    comment_like_ids = []
+    if user:
+        # 如果当前用户已登录
+        try:
+            # 1.查询出当前新闻的所有评论（【COMMENT】）取到所有的评论id
+            comment_ids = [comment.id for comment in comments]
+            if len(comment_ids) > 0:
+                # 2.取到当前用户在当前新闻的所有评论点赞的记录
+                comment_likes = CommentLike.query.filter(CommentLike.comment_id.in_(comment_ids),
+                                                         CommentLike.user_id == g.user.id).all()
+                # 3.取出记录中所有的评论id
+                comment_like_ids = [comment_like.comment_id for comment_like in comment_likes]
+        except Exception as e:
+            current_app.logger.error(e)
+
     comment_dict_li = []
-    for item in comments:
-        comment_dict = item.to_dict()
+    for comment in comments:
+        comment_dict = comment.to_dict()
+        # 代表没有点赞
+        comment_dict["is_like"] = False
+        # 判断用户是否点赞该评论
+        if user and comment.id in comment_like_ids:
+            comment_dict["is_like"] = True
         comment_dict_li.append(comment_dict)
 
     data = {
