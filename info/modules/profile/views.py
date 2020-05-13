@@ -1,4 +1,4 @@
-from flask import render_template, redirect, g
+from flask import render_template, redirect, g, request
 
 from info.modules.profile import profile_blu
 from info.utils.common import user_login_data
@@ -22,3 +22,15 @@ def get_user_info():
     }
     # 渲染模板
     return render_template("news/user.html", data=data)
+
+
+@profile_blu.route('/base_info', methods=["GET", "POST"])
+@user_login_data
+def base_info():
+    """
+    用户基本信息
+    :return:
+    """
+    if request.method == "GET":
+        return render_template('news/user_base_info.html', data={"user": g.user.to_dict()})
+    # 如果是POST，代表是修改用户数据
