@@ -25,7 +25,7 @@
                     currentPage: {{ data.current_page }},
                     totalPage: {{ data.total_page }},
                     callback: function(current) {
-                        window.location.href = "/user/collection?page=" + current;
+                        window.location.href = "/user/collection?p=" + current;
                     }
                 });
             });
