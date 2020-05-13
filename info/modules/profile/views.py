@@ -106,3 +106,40 @@ def pass_info():
     # 3.更新新密码数据
     user.password = new_password
     return jsonify(errno=RET.OK, errmsg="保存成功")
+
+
+@profile_blu.route('/collection')
+@user_login_data
+def user_collection():
+    # 获取页数
+    page = request.args.get("p", 1)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    # 查询用户指定页数的收藏新闻
+    user = g.user
+    collections = []
+    current_page = 1
+    total_page = 1
+    try:
+        # 进行分页数据查询
+        paginate = user.collection_news.paginate(page, constants.USER_COLLECTION_MAX_NEWS, False)
+        # 获取分页数据
+        collections = paginate.items
+        # 获取当前页
+        current_page = paginate.page
+        # 获取总页数
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    # 收藏列表
+    collection_dict_li = []
+    for news in collections:
+        collection_dict_li.append(news.to_basic_dict())
+
+    data = {"total_page": total_page, "current_page": current_page, "collections": collection_dict_li}
+    return render_template('news/user_collection.html', data=data)
