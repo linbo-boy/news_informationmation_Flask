@@ -1,8 +1,9 @@
-from flask import render_template, current_app, session, request, jsonify
+from flask import render_template, current_app, session, request, jsonify, g
 
 from . import index_blu
 from ... import redis_store, constants
 from ...models import User, News, Category
+from ...utils.common import user_login_data
 from ...utils.response_code import RET
 
 
@@ -53,20 +54,22 @@ def news_list():
 
 
 @index_blu.route('/')
+@user_login_data
 def index():
     """
     1.如果用户已经登录，将当前登录用户的数据传到模板中，供模板显示
     :return:
     """
+    user = g.user
     # 显示用户是否登录的逻辑
     # 获取用户id
-    user_id = session.get("user_id", None)
-    user = None
-    if user_id:
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
+    # user_id = session.get("user_id", None)
+    # user = None
+    # if user_id:
+    #     try:
+    #         user = User.query.get(user_id)
+    #     except Exception as e:
+    #         current_app.logger.error(e)
 
     # 右侧新闻排行的逻辑
     news_list = []
