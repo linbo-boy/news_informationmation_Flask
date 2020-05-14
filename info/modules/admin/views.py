@@ -4,7 +4,7 @@ from flask import render_template, request, current_app, session, redirect, url_
 import time
 
 from info import constants, db
-from info.models import User, News
+from info.models import User, News, Category
 from info.modules.admin import admin_blu
 from info.utils.common import user_login_data
 from info.utils.response_code import RET
@@ -305,4 +305,32 @@ def news_edit():
 @admin_blu.route('/news_edit_detail')
 def news_edit_detail():
     """新闻编辑详情"""
-    return render_template("admin/news_edit_detail.html")
+    news_id = request.args.get("news_id")
+    if not news_id:
+        return render_template('admin/news_edit_detail.html', data={"errmsg": "未查询到此新闻"})
+    # 查询新闻
+    news = None
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+    if not news:
+        return render_template('admin/news_edit_detail.html', data={"errmsg": "未查询到此新闻"})
+
+    # 查询分类的数据
+    categories = Category.query.all()
+    categories_li = []
+    for category in categories:
+        c_dict = category.to_dict()
+        c_dict["is_selected"] = False
+        if category.id == news.category_id:
+            c_dict["is_selected"] = True
+        categories_li.append(c_dict)
+    # 移除`最新`分类
+    categories_li.pop(0)
+
+    data = {
+        "news": news.to_dict(),
+        "categories": categories_li
+    }
+    return render_template("admin/news_edit_detail.html", data=data)
