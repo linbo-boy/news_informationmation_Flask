@@ -257,3 +257,46 @@ def news_review_action():
         db.session.rollback()
         return jsonify(errno=RET.DBERR, errmsg="数据保存失败")
     return jsonify(errno=RET.OK, errmsg="操作成功")
+
+
+@admin_blu.route('/news_edit')
+def news_edit():
+    """返回新闻列表"""
+    page = request.args.get("p", 1)
+    keywords = request.args.get("keywords", None)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    news_list = []
+    current_page = 1
+    total_page = 1
+
+    filters = [News.status == 0]
+    # 如果关键字存在，那么就添加关键字搜索
+    if keywords:
+        filters.append(News.title.contains(keywords))
+    try:
+        paginate = News.query.filter(*filters) \
+            .order_by(News.create_time.desc()) \
+            .paginate(page, constants.ADMIN_NEWS_PAGE_MAX_COUNT, False)
+
+        news_list = paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    news_dict_list = []
+    for news in news_list:
+        news_dict_list.append(news.to_basic_dict())
+
+    context = {
+        "total_page": total_page,
+        "current_page": current_page,
+        "news_list": news_dict_list
+    }
+
+    return render_template('admin/news_edit.html', data=context)
