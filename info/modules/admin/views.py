@@ -389,3 +389,25 @@ def news_edit_detail():
         return jsonify(errno=RET.DBERR, errmsg="保存数据失败")
     # 5. 返回结果
     return jsonify(errno=RET.OK, errmsg="编辑成功")
+
+
+@admin_blu.route('/news_type')
+def news_type():
+    """新闻分类管理"""
+    # 获取所有的分类数据
+    categories = Category.query.all()
+    # 定义列表保存分类数据
+    categories_dicts = []
+
+    for category in categories:
+        # 获取字典
+        cate_dict = category.to_dict()
+        # 拼接内容
+        categories_dicts.append(cate_dict)
+
+    categories_dicts.pop(0)
+    data = {
+        "categories": categories_dicts
+    }
+    # 返回内容
+    return render_template('admin/news_type.html', data=data)
