@@ -1,7 +1,7 @@
-from flask import render_template, redirect, g, request, jsonify, current_app
+from flask import render_template, redirect, g, request, jsonify, current_app, abort
 
 from info import constants, db
-from info.models import Category, News
+from info.models import Category, News, User
 from info.modules.profile import profile_blu
 from info.utils.common import user_login_data
 from info.utils.image_storage import storage
@@ -293,3 +293,12 @@ def user_follow():
         user_dict_li.append(follow_user.to_dict())
     data = {"users": user_dict_li, "total_page": total_page, "current_page": current_page}
     return render_template('news/user_follow.html', data=data)
+
+
+@profile_blu.route('/other_info')
+@user_login_data
+def other_info():
+    """查看其他用户信息"""
+    user = g.user
+    data = {"user": user.to_dict() if user else None}
+    return render_template('news/other.html', data=data)
