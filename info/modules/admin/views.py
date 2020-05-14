@@ -11,7 +11,7 @@ def login():
         user_id = session.get("user_id", None)
         is_admin = session.get("is_admin", False)
         if user_id and is_admin:
-            # 跳转到后台管理主页,暂未实现
+            # 跳转到后台管理主页
             return redirect(url_for("admin.admin_index"))
         return render_template("admin/login.html")
 
@@ -43,6 +43,9 @@ def login():
     session["nick_name"] = user.nick_name
     session["mobile"] = user.mobile
     session["is_admin"] = True
+
+    # 跳转到后台管理主页
+    return redirect(url_for("admin.admin_index"))
 
 
 @admin_blu.route('/index')

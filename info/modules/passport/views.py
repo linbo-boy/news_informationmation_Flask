@@ -22,6 +22,8 @@ def logout():
     session.pop('user_id', None)
     session.pop('mobile', None)
     session.pop('nick_name', None)
+    # 要清除is_admin的session值,不然登录管理员后退出再登录普通用户又能访问管理员后台
+    session.pop('is_admin', None)
     return jsonify(errno=RET.OK, errmsg="退出成功")
 
 
