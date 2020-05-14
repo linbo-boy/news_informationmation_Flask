@@ -7,6 +7,12 @@ from info.modules.admin import admin_blu
 @admin_blu.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
+        # 判断当前是否登录，如果是登录状态直接重定向到管理后台主页
+        user_id = session.get("user_id", None)
+        is_admin = session.get("is_admin", False)
+        if user_id and is_admin:
+            # 跳转到后台管理主页,暂未实现
+            return redirect(url_for("admin.admin_index"))
         return render_template("admin/login.html")
 
     # 取到登录参数
@@ -37,9 +43,6 @@ def login():
     session["nick_name"] = user.nick_name
     session["mobile"] = user.mobile
     session["is_admin"] = True
-
-    # 跳转到后台管理主页,暂未实现
-    return redirect(url_for("admin.admin_index"))
 
 
 @admin_blu.route('/index')
