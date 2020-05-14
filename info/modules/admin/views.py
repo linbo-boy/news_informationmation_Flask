@@ -300,3 +300,9 @@ def news_edit():
     }
 
     return render_template('admin/news_edit.html', data=context)
+
+
+@admin_blu.route('/news_edit_detail')
+def news_edit_detail():
+    """新闻编辑详情"""
+    return render_template("admin/news_edit_detail.html")
