@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from flask import render_template, request, current_app, session, redirect, url_for, g
 import time
@@ -84,9 +84,33 @@ def user_count():
     except Exception as e:
         current_app.logger.error(e)
 
+    # 查询图表信息
+    # 获取到当天00:00:00时间
+    now_date = datetime.strptime(datetime.now().strftime('%Y-%m-%d'), '%Y-%m-%d')
+    # 定义空数组，保存数据
+    active_time = []
+    active_count = []
+    for i in range(0, 31):
+        begin_date = now_date - timedelta(days=i)
+        end_date = now_date - timedelta(days=(i - 1))
+        active_time.append(begin_date.strftime('%Y-%m-%d'))
+        count = 0
+        try:
+            count = User.query.filter(User.is_admin == False, User.last_login >= begin_date,
+                                      User.last_login < end_date).count()
+        except Exception as e:
+            current_app.logger.error(e)
+        active_count.append(count)
+
+    active_time.reverse()
+    active_count.reverse()
+
     data = {
         "total_count": total_count,
         "mon_count": mon_count,
-        "day_count": day_count
+        "day_count": day_count,
+        "active_time": active_time,
+        "active_count": active_count
     }
+
     return render_template('admin/user_count.html', data=data)
