@@ -300,5 +300,27 @@ def user_follow():
 def other_info():
     """查看其他用户信息"""
     user = g.user
-    data = {"user": user.to_dict() if user else None}
+    # 获取其他用户id
+    other_id = request.args.get("user_id")
+    if not other_id:
+        abort(404)
+    # 查询用户模型
+    other = None
+    try:
+        other = User.query.get(other_id)
+    except Exception as e:
+        current_app.logger.error(e)
+    if not other:
+        abort(404)
+
+    # 当前登录用户是否关注当前新闻作者
+    is_followed = False
+    if other and user:
+        if other in user.followed:
+            is_followed = True
+    data = {
+        "user": user.to_dict() if user else None,
+        "other_info": other.to_dict(),
+        "is_followed": is_followed
+    }
     return render_template('news/other.html', data=data)
