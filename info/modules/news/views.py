@@ -39,15 +39,11 @@ def news_detail(news_id):
     # 更新新闻的点击次数
     news.clicks += 1
 
-    # 当前登录用户是否关注当前新闻作者
-    is_followed = False
     # 判断用户是否收藏过该新闻
     is_collected = False
     if user:
         if news in user.collection_news:
             is_collected = True
-        if news.user.followers.filter(User.id == g.user.id).count() > 0:
-            is_followed = True
 
     # 查询评论数据
     comments = []
@@ -80,6 +76,12 @@ def news_detail(news_id):
         if user and comment.id in comment_like_ids:
             comment_dict["is_like"] = True
         comment_dict_li.append(comment_dict)
+
+    # 当前登录用户是否关注当前新闻作者
+    is_followed = False
+    if news.user and user:
+        if news.user in user.followed:
+            is_followed = True
 
     data = {
         "user": user.to_dict() if user else None,
