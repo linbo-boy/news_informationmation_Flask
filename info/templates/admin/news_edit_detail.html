@@ -48,6 +48,8 @@
                     <input class="input_area" id="rich_content" name="content" value="{{ data.news.content }}"></input>
                 </div>
             </div>
+            {# 添加隐藏字段新闻id #}
+            <input type="hidden" name="news_id" value="{{ data.news.id }}">
 			<div class="form_group indent_group line_top">
 				<input type="submit" value="确定" class="confirm">
 				<input type="button" value="取消" class="cancel" onclick="cancel()">
