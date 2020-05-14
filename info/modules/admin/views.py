@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 from flask import render_template, request, current_app, session, redirect, url_for, g
 import time
+
+from info import constants
 from info.models import User
 from info.modules.admin import admin_blu
 from info.utils.common import user_login_data
@@ -114,3 +116,40 @@ def user_count():
     }
 
     return render_template('admin/user_count.html', data=data)
+
+
+@admin_blu.route('/user_list')
+def user_list():
+    """获取用户列表"""
+    # 获取参数
+    page = request.args.get("page", 1)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    # 设置变量默认值
+    users = []
+    current_page = 1
+    total_page = 1
+
+    # 查询数据
+    try:
+        paginate = User.query.filter(User.is_admin == False).paginate(page, constants.ADMIN_USER_PAGE_MAX_COUNT)
+        users = paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    # 将模型列表转成字典列表
+    users_list = []
+    for user in users:
+        users_list.append(user.to_admin_dict())
+    data = {
+        "total_page": total_page,
+        "current_page": current_page,
+        "users": users_list
+    }
+    return render_template("admin/user_list.html", data=data)
